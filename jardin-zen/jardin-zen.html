@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <!-- Jardín Zen: copia de "Koi Pond Garden" (souranyp-stack/koi-pond-garden, https://souranyp-stack.github.io/koi-pond-garden/koi-pond.html).
      Escena de Three.js (r160) y dat.GUI. Los créditos y la licencia son de su autor original; ver jardin-zen/README.md. -->
-<html lang="en"><head>
+<html lang="es"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1311">
 <title>Jardín Zen</title>
-<meta name="description" content="An interactive Japanese koi pond garden rendered in real time with Three.js — one HTML file, no assets, no build step.">
+<meta name="description" content="Un jardín japonés interactivo con estanque de carpas koi, dibujado en tiempo real con Three.js: un solo archivo HTML, sin recursos ni compilación. Con teclado, mando y pantalla táctil.">
 <!-- Social preview (Open Graph + Twitter) -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Jardín Zen">
-<meta property="og:description" content="An interactive Japanese koi pond garden rendered in real time with Three.js — one HTML file, no assets, no build step.">
+<meta property="og:description" content="Un jardín japonés interactivo con estanque de carpas koi, dibujado en tiempo real con Three.js: un solo archivo HTML, sin recursos ni compilación. Con teclado, mando y pantalla táctil.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Jardín Zen">
-<meta name="twitter:description" content="An interactive Japanese koi pond garden rendered in real time with Three.js — one HTML file, no assets.">
+<meta name="twitter:description" content="Un jardín japonés interactivo con estanque de carpas koi, dibujado en tiempo real con Three.js: un solo archivo HTML, sin recursos ni compilación. Con teclado, mando y pantalla táctil.">
 <style>
   :root {
     --ground: #0a1311;
@@ -154,56 +156,123 @@
   @media (max-width: 1180px) { #toolbar button.sec .lbl { display: none; } #toolbar button.sec { padding: 0 10px; } }
   @media (max-width: 600px) {
     .dg.main { width: 250px !important; }
-    #help { display: none; }
-    #help-open { display: none; }
     #hud { display: none; }
     #toolbar { left: 50%; right: auto; transform: translateX(-50%); flex-wrap: nowrap; }
     #toolbar button .lbl { display: none; }
     #toolbar button { padding: 0 10px; }
   }
+
+  /* ---------- guía por dispositivo ---------- */
+  #help { width: 340px; max-height: calc(100vh - 90px); overflow-y: auto; }
+  #help .pd, #help .tc { display: none; }
+  body.has-pad #help .pd { display: grid; }
+  body.has-pad #help p.pd { display: block; }
+  body.has-pad #help .nopad { display: none; }
+  body.is-touch #help .kb { display: none; }
+  body.is-touch #help .tc { display: block; }
+  #help .tc { margin: 0; padding-left: 18px; line-height: 1.5; }
+  #help .tc li { margin-bottom: 6px; }
+  #help dl.pd { margin-top: 10px; }
+  #help dl.pd dd { white-space: normal; overflow: visible; line-height: 1.25; }
+  #help dl.pd div { align-items: flex-start; }
+  #help dt kbd { white-space: nowrap; }
+  /* ---------- controles táctiles ---------- */
+  html, body { overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  #touchpad { display: none; position: fixed; left: 0; right: 0; bottom: calc(var(--tbh, 60px) + 26px + env(safe-area-inset-bottom, 0px)); z-index: 6;
+    justify-content: space-between; align-items: flex-end; padding: 0 calc(22px + env(safe-area-inset-right, 0px)) 0 calc(22px + env(safe-area-inset-left, 0px)); pointer-events: none; }
+  body.is-touch.manual:not(.clean) #touchpad { display: flex; }
+  #joy { position: relative; width: 132px; height: 132px; border-radius: 50%; pointer-events: auto; touch-action: none;
+    background: radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,.03) 70%); border: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #joyk { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(240,137,76,.85), rgba(217,97,43,.85)); box-shadow: 0 3px 12px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.3); }
+  #alt { display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+  #alt button { width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--glass-line); color: var(--ink); font-size: 20px; line-height: 1; touch-action: none;
+    background: var(--glass-sheen), var(--glass-strong); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #alt button.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  @media (pointer: coarse) {
+    #toolbar { flex-wrap: wrap; justify-content: center; }
+    #toolbar button { height: 46px; min-width: 42px; padding: 0 8px; justify-content: center; }
+    #toolbar button.sec .lbl { display: none; }
+    .icon-btn { width: 40px; height: 40px; }
+    #help-open { width: 44px; height: 44px; }
+  }
+  @media (max-width: 600px) {
+    #help { display: block; top: calc(64px + env(safe-area-inset-top, 0px)); left: 14px; width: calc(100vw - 28px); max-height: calc(100vh - 250px); }
+    #help-open { display: inline-flex; top: calc(14px + env(safe-area-inset-top, 0px)); }
+    #help-open.shown { opacity: 1; }
+    #toolbar { left: 12px; right: 12px; transform: none; max-width: none; }
+    #toolbar button .lbl { display: none; }
+    #toast { max-width: calc(100vw - 32px); white-space: normal; text-align: center; border-radius: 16px; }
+  }
+  @media (max-height: 460px) and (pointer: coarse) { #joy { width: 104px; height: 104px; } #alt button { width: 50px; height: 50px; } }
 </style>
-<style type="text/css">.dg ul{list-style:none;margin:0;padding:0;width:100%;clear:both}.dg.ac{position:fixed;top:0;left:0;right:0;height:0;z-index:0}.dg:not(.ac) .main{overflow:hidden}.dg.main{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear}.dg.main.taller-than-window{overflow-y:auto}.dg.main.taller-than-window .close-button{opacity:1;margin-top:-1px;border-top:1px solid #2c2c2c}.dg.main ul.closed .close-button{opacity:1 !important}.dg.main:hover .close-button,.dg.main .close-button.drag{opacity:1}.dg.main .close-button{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear;border:0;line-height:19px;height:20px;cursor:pointer;text-align:center;background-color:#000}.dg.main .close-button.close-top{position:relative}.dg.main .close-button.close-bottom{position:absolute}.dg.main .close-button:hover{background-color:#111}.dg.a{float:right;margin-right:15px;overflow-y:visible}.dg.a.has-save>ul.close-top{margin-top:0}.dg.a.has-save>ul.close-bottom{margin-top:27px}.dg.a.has-save>ul.closed{margin-top:0}.dg.a .save-row{top:0;z-index:1002}.dg.a .save-row.close-top{position:relative}.dg.a .save-row.close-bottom{position:fixed}.dg li{-webkit-transition:height .1s ease-out;-o-transition:height .1s ease-out;-moz-transition:height .1s ease-out;transition:height .1s ease-out;-webkit-transition:overflow .1s linear;-o-transition:overflow .1s linear;-moz-transition:overflow .1s linear;transition:overflow .1s linear}.dg li:not(.folder){cursor:auto;height:27px;line-height:27px;padding:0 4px 0 5px}.dg li.folder{padding:0;border-left:4px solid rgba(0,0,0,0)}.dg li.title{cursor:pointer;margin-left:-4px}.dg .closed li:not(.title),.dg .closed ul li,.dg .closed ul li>*{height:0;overflow:hidden;border:0}.dg .cr{clear:both;padding-left:3px;height:27px;overflow:hidden}.dg .property-name{cursor:default;float:left;clear:left;width:40%;overflow:hidden;text-overflow:ellipsis}.dg .cr.function .property-name{width:100%}.dg .c{float:left;width:60%;position:relative}.dg .c input[type=text]{border:0;margin-top:4px;padding:3px;width:100%;float:right}.dg .has-slider input[type=text]{width:30%;margin-left:0}.dg .slider{float:left;width:66%;margin-left:-5px;margin-right:0;height:19px;margin-top:4px}.dg .slider-fg{height:100%}.dg .c input[type=checkbox]{margin-top:7px}.dg .c select{margin-top:5px}.dg .cr.function,.dg .cr.function .property-name,.dg .cr.function *,.dg .cr.boolean,.dg .cr.boolean *{cursor:pointer}.dg .cr.color{overflow:visible}.dg .selector{display:none;position:absolute;margin-left:-9px;margin-top:23px;z-index:10}.dg .c:hover .selector,.dg .selector.drag{display:block}.dg li.save-row{padding:0}.dg li.save-row .button{display:inline-block;padding:0px 6px}.dg.dialogue{background-color:#222;width:460px;padding:15px;font-size:13px;line-height:15px}#dg-new-constructor{padding:10px;color:#222;font-family:Monaco, monospace;font-size:10px;border:0;resize:none;box-shadow:inset 1px 1px 1px #888;word-wrap:break-word;margin:12px 0;display:block;width:440px;overflow-y:scroll;height:100px;position:relative}#dg-local-explain{display:none;font-size:11px;line-height:17px;border-radius:3px;background-color:#333;padding:8px;margin-top:10px}#dg-local-explain code{font-size:10px}#dat-gui-save-locally{display:none}.dg{color:#eee;font:11px 'Lucida Grande', sans-serif;text-shadow:0 -1px 0 #111}.dg.main::-webkit-scrollbar{width:5px;background:#1a1a1a}.dg.main::-webkit-scrollbar-corner{height:0;display:none}.dg.main::-webkit-scrollbar-thumb{border-radius:5px;background:#676767}.dg li:not(.folder){background:#1a1a1a;border-bottom:1px solid #2c2c2c}.dg li.save-row{line-height:25px;background:#dad5cb;border:0}.dg li.save-row select{margin-left:5px;width:108px}.dg li.save-row .button{margin-left:5px;margin-top:1px;border-radius:2px;font-size:9px;line-height:7px;padding:4px 4px 5px 4px;background:#c5bdad;color:#fff;text-shadow:0 1px 0 #b0a58f;box-shadow:0 -1px 0 #b0a58f;cursor:pointer}.dg li.save-row .button.gears{background:#c5bdad url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat;height:7px;width:8px}.dg li.save-row .button:hover{background-color:#bab19e;box-shadow:0 -1px 0 #b0a58f}.dg li.folder{border-bottom:0}.dg li.title{padding-left:16px;background:#000 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2)}.dg .closed li.title{background-image:url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==)}.dg .cr.boolean{border-left:3px solid #806787}.dg .cr.color{border-left:3px solid}.dg .cr.function{border-left:3px solid #e61d5f}.dg .cr.number{border-left:3px solid #2FA1D6}.dg .cr.number input[type=text]{color:#2FA1D6}.dg .cr.string{border-left:3px solid #1ed36f}.dg .cr.string input[type=text]{color:#1ed36f}.dg .cr.function:hover,.dg .cr.boolean:hover{background:#111}.dg .c input[type=text]{background:#303030;outline:none}.dg .c input[type=text]:hover{background:#3c3c3c}.dg .c input[type=text]:focus{background:#494949;color:#fff}.dg .c .slider{background:#303030;cursor:ew-resize}.dg .c .slider-fg{background:#2FA1D6;max-width:100%}.dg .c .slider:hover{background:#3c3c3c}.dg .c .slider:hover .slider-fg{background:#44abda}
-</style><style type="text/css">.dg ul{list-style:none;margin:0;padding:0;width:100%;clear:both}.dg.ac{position:fixed;top:0;left:0;right:0;height:0;z-index:0}.dg:not(.ac) .main{overflow:hidden}.dg.main{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear}.dg.main.taller-than-window{overflow-y:auto}.dg.main.taller-than-window .close-button{opacity:1;margin-top:-1px;border-top:1px solid #2c2c2c}.dg.main ul.closed .close-button{opacity:1 !important}.dg.main:hover .close-button,.dg.main .close-button.drag{opacity:1}.dg.main .close-button{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear;border:0;line-height:19px;height:20px;cursor:pointer;text-align:center;background-color:#000}.dg.main .close-button.close-top{position:relative}.dg.main .close-button.close-bottom{position:absolute}.dg.main .close-button:hover{background-color:#111}.dg.a{float:right;margin-right:15px;overflow-y:visible}.dg.a.has-save>ul.close-top{margin-top:0}.dg.a.has-save>ul.close-bottom{margin-top:27px}.dg.a.has-save>ul.closed{margin-top:0}.dg.a .save-row{top:0;z-index:1002}.dg.a .save-row.close-top{position:relative}.dg.a .save-row.close-bottom{position:fixed}.dg li{-webkit-transition:height .1s ease-out;-o-transition:height .1s ease-out;-moz-transition:height .1s ease-out;transition:height .1s ease-out;-webkit-transition:overflow .1s linear;-o-transition:overflow .1s linear;-moz-transition:overflow .1s linear;transition:overflow .1s linear}.dg li:not(.folder){cursor:auto;height:27px;line-height:27px;padding:0 4px 0 5px}.dg li.folder{padding:0;border-left:4px solid rgba(0,0,0,0)}.dg li.title{cursor:pointer;margin-left:-4px}.dg .closed li:not(.title),.dg .closed ul li,.dg .closed ul li>*{height:0;overflow:hidden;border:0}.dg .cr{clear:both;padding-left:3px;height:27px;overflow:hidden}.dg .property-name{cursor:default;float:left;clear:left;width:40%;overflow:hidden;text-overflow:ellipsis}.dg .cr.function .property-name{width:100%}.dg .c{float:left;width:60%;position:relative}.dg .c input[type=text]{border:0;margin-top:4px;padding:3px;width:100%;float:right}.dg .has-slider input[type=text]{width:30%;margin-left:0}.dg .slider{float:left;width:66%;margin-left:-5px;margin-right:0;height:19px;margin-top:4px}.dg .slider-fg{height:100%}.dg .c input[type=checkbox]{margin-top:7px}.dg .c select{margin-top:5px}.dg .cr.function,.dg .cr.function .property-name,.dg .cr.function *,.dg .cr.boolean,.dg .cr.boolean *{cursor:pointer}.dg .cr.color{overflow:visible}.dg .selector{display:none;position:absolute;margin-left:-9px;margin-top:23px;z-index:10}.dg .c:hover .selector,.dg .selector.drag{display:block}.dg li.save-row{padding:0}.dg li.save-row .button{display:inline-block;padding:0px 6px}.dg.dialogue{background-color:#222;width:460px;padding:15px;font-size:13px;line-height:15px}#dg-new-constructor{padding:10px;color:#222;font-family:Monaco, monospace;font-size:10px;border:0;resize:none;box-shadow:inset 1px 1px 1px #888;word-wrap:break-word;margin:12px 0;display:block;width:440px;overflow-y:scroll;height:100px;position:relative}#dg-local-explain{display:none;font-size:11px;line-height:17px;border-radius:3px;background-color:#333;padding:8px;margin-top:10px}#dg-local-explain code{font-size:10px}#dat-gui-save-locally{display:none}.dg{color:#eee;font:11px 'Lucida Grande', sans-serif;text-shadow:0 -1px 0 #111}.dg.main::-webkit-scrollbar{width:5px;background:#1a1a1a}.dg.main::-webkit-scrollbar-corner{height:0;display:none}.dg.main::-webkit-scrollbar-thumb{border-radius:5px;background:#676767}.dg li:not(.folder){background:#1a1a1a;border-bottom:1px solid #2c2c2c}.dg li.save-row{line-height:25px;background:#dad5cb;border:0}.dg li.save-row select{margin-left:5px;width:108px}.dg li.save-row .button{margin-left:5px;margin-top:1px;border-radius:2px;font-size:9px;line-height:7px;padding:4px 4px 5px 4px;background:#c5bdad;color:#fff;text-shadow:0 1px 0 #b0a58f;box-shadow:0 -1px 0 #b0a58f;cursor:pointer}.dg li.save-row .button.gears{background:#c5bdad url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat;height:7px;width:8px}.dg li.save-row .button:hover{background-color:#bab19e;box-shadow:0 -1px 0 #b0a58f}.dg li.folder{border-bottom:0}.dg li.title{padding-left:16px;background:#000 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2)}.dg .closed li.title{background-image:url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==)}.dg .cr.boolean{border-left:3px solid #806787}.dg .cr.color{border-left:3px solid}.dg .cr.function{border-left:3px solid #e61d5f}.dg .cr.number{border-left:3px solid #2FA1D6}.dg .cr.number input[type=text]{color:#2FA1D6}.dg .cr.string{border-left:3px solid #1ed36f}.dg .cr.string input[type=text]{color:#1ed36f}.dg .cr.function:hover,.dg .cr.boolean:hover{background:#111}.dg .c input[type=text]{background:#303030;outline:none}.dg .c input[type=text]:hover{background:#3c3c3c}.dg .c input[type=text]:focus{background:#494949;color:#fff}.dg .c .slider{background:#303030;cursor:ew-resize}.dg .c .slider-fg{background:#2FA1D6;max-width:100%}.dg .c .slider:hover{background:#3c3c3c}.dg .c .slider:hover .slider-fg{background:#44abda}
-</style></head>
+</head>
 <body>
-<canvas id="c" tabindex="0" data-engine="three.js r160" width="2321" height="1020"></canvas>
-<div id="loader"><h1>Jardín Zen</h1><div class="bar"><i id="loadbar" style="width: 100%;"></i></div><p id="loadmsg">Ready</p></div>
-<div id="hud" class="glass"> 60 fps   15.4 ms
-High · above water · Cinematic</div>
-<aside id="help" class="glass hidden" aria-label="Guide" aria-hidden="true">
-  <header><span class="help-title">Guide</span>
-    <button id="help-close" class="icon-btn" type="button" title="Hide the guide (I)" aria-label="Hide the guide">
+<canvas id="c" tabindex="0" data-engine="three.js r160"></canvas>
+<div id="loader"><h1>Jardín Zen</h1><div class="bar"><i id="loadbar"></i></div><p id="loadmsg">Cargando…</p></div>
+<div id="hud" class="glass"></div>
+<aside id="help" class="glass hidden" aria-label="Guía" aria-hidden="true">
+  <header><span class="help-title">Guía</span>
+    <button id="help-close" class="icon-btn" type="button" title="Ocultar la guía (I)" aria-label="Ocultar la guía">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></header>
-  <p class="lead">Click the water for ripples and a splash, or the frog to make it leap.</p>
-  <dl>
-    <div><dt><kbd>C</kbd></dt><dd>Camera mode</dd></div>
-    <div><dt><kbd>E</kbd></dt><dd>Feed the koi</dd></div>
-    <div><dt><kbd>P</kbd></dt><dd>Hold shot</dd></div>
-    <div><dt><kbd>G</kbd></dt><dd>Stroke a koi</dd></div>
-    <div><dt><kbd>O</kbd></dt><dd>Freeze time</dd></div>
-    <div><dt><kbd>K</kbd></dt><dd>Follow a koi</dd></div>
-    <div><dt><kbd>V</kbd></dt><dd>Clean view</dd></div>
-    <div><dt><kbd>T</kbd></dt><dd>Weather</dd></div>
-    <div><dt><kbd>M</kbd></dt><dd>Mute / unmute</dd></div>
-    <div><dt><kbd>H</kbd></dt><dd>Control panel</dd></div>
-    <div><dt><kbd>I</kbd></dt><dd>Hide this guide</dd></div>
+  <p class="lead">Toca o haz clic en el agua para crear ondas y salpicaduras, o en la rana para que salte.</p>
+  <dl class="kb">
+    <div><dt><kbd>C</kbd></dt><dd>Cámara</dd></div>
+    <div><dt><kbd>E</kbd></dt><dd>Dar de comer</dd></div>
+    <div><dt><kbd>P</kbd></dt><dd>Fijar plano</dd></div>
+    <div><dt><kbd>G</kbd></dt><dd>Acariciar</dd></div>
+    <div><dt><kbd>O</kbd></dt><dd>Congelar tiempo</dd></div>
+    <div><dt><kbd>K</kbd></dt><dd>Seguir una carpa</dd></div>
+    <div><dt><kbd>V</kbd></dt><dd>Vista limpia</dd></div>
+    <div><dt><kbd>T</kbd></dt><dd>Clima</dd></div>
+    <div><dt><kbd>M</kbd></dt><dd>Sonido</dd></div>
+    <div><dt><kbd>H</kbd></dt><dd>Panel de control</dd></div>
+    <div><dt><kbd>I</kbd></dt><dd>Ocultar guía</dd></div>
   </dl>
-  <p class="foot">Manual · <kbd>Drag</kbd> look · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Q</kbd> <kbd>Space</kbd> down / up · <kbd>Shift</kbd> faster</p>
+  <p class="foot kb">Manual · <kbd>Arrastrar</kbd> mirar · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover · <kbd>Q</kbd> <kbd>Espacio</kbd> bajar / subir · <kbd>Mayús</kbd> más rápido</p>
+  <p class="foot kb nopad">¿Tienes un mando? Conéctalo y pulsa cualquier botón.</p>
+  <dl class="pd">
+    <div><dt><kbd>A</kbd></dt><dd>Dar de comer</dd></div>
+    <div><dt><kbd>B</kbd></dt><dd>Acariciar</dd></div>
+    <div><dt><kbd>X</kbd></dt><dd>Cámara</dd></div>
+    <div><dt><kbd>Y</kbd></dt><dd>Clima</dd></div>
+    <div><dt><kbd>LB</kbd></dt><dd>Seguir carpa</dd></div>
+    <div><dt><kbd>RB</kbd></dt><dd>Más rápido</dd></div>
+    <div><dt><kbd>LT</kbd> <kbd>RT</kbd></dt><dd>Bajar / subir</dd></div>
+    <div><dt><kbd>Cruceta ↑</kbd></dt><dd>Sonido</dd></div>
+    <div><dt><kbd>Cruceta ↓</kbd></dt><dd>Gota en el agua</dd></div>
+    <div><dt><kbd>Cruceta ←→</kbd></dt><dd>Velocidad de vuelo</dd></div>
+    <div><dt><kbd>L3</kbd></dt><dd>Fijar plano</dd></div>
+    <div><dt><kbd>R3</kbd></dt><dd>Congelar tiempo</dd></div>
+    <div><dt><kbd>Select</kbd></dt><dd>Vista limpia</dd></div>
+    <div><dt><kbd>Start</kbd></dt><dd>Mostrar / ocultar guía</dd></div>
+  </dl>
+  <p class="foot pd">Mando · stick izquierdo mover · stick derecho mirar (con la cámara manual). En PlayStation: ✕ = A, ○ = B, □ = X, △ = Y.</p>
+  <ul class="tc">
+    <li>Pulsa <b>Cámara manual</b> para explorar: el joystick de la izquierda mueve, arrastrar con el dedo mira, y ▲ ▼ suben y bajan.</li>
+    <li>Toca el agua para hacer ondas y la rana para que salte.</li>
+    <li><b>Alimentar</b> y <b>Acariciar</b> están en la barra de abajo. Para acariciar, desliza el dedo sobre la carpa.</li>
+  </ul>
 </aside>
-<button id="help-open" class="glass icon-btn shown" type="button" title="Show the guide (I)" aria-label="Show the guide">?</button>
+<button id="help-open" class="glass icon-btn shown" type="button" title="Mostrar la guía (I)" aria-label="Mostrar la guía">?</button>
 <div id="toast" class="glass"></div>
-<div id="cleanhint" class="glass">Clean view · press V or Esc to bring the controls back</div>
-<div id="caption" aria-live="polite" style="opacity: 0;">The garden from above</div>
-<div id="toolbar" class="glass" role="toolbar" aria-label="Scene controls">
-  <button id="tb-cam" class="sec" type="button" title="Switch between cinematic and manual camera (C)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h10v9h-10z"></path><path d="M13.5 10.5l6-3v9l-6-3"></path></svg><span class="lbl">Manual camera</span></button>
-  <button id="tb-hold" class="sec" type="button" aria-pressed="false" title="Hold the current shot (P)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="11" width="13" height="9" rx="2.2"></rect><path d="M8.5 11V8.2a3.5 3.5 0 0 1 7 0V11"></path></svg><span class="lbl">Hold shot</span></button>
-  <button id="tb-freeze" class="sec" type="button" aria-pressed="false" title="Freeze time (O)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M10 9v6M14 9v6"></path></svg><span class="lbl">Freeze time</span></button>
-  <button id="tb-clean" class="sec" type="button" title="Hide all overlays for screenshots (V, Esc to exit)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg><span class="lbl">Clean view</span></button>
-  <button id="tb-weather" class="sec" type="button" title="Change the weather / season (T)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3"></circle><path d="M8.5 2.5v1.2M2.5 8.5h1.2M4.3 4.3l.9.9M12.7 4.3l-.9.9"></path><path d="M8.5 19.5h9a3.5 3.5 0 0 0 .2-7 5 5 0 0 0-9.4 1.3 2.9 2.9 0 0 0 .2 5.7z"></path></svg><span class="lbl">Sunny</span></button>
-  <button id="tb-sound" class="sec" type="button" aria-pressed="false" title="Mute / unmute (M)" aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-on"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path><path d="M15.5 9a4 4 0 0 1 0 6M18.2 6.5a7.6 7.6 0 0 1 0 11"></path></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-off"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg><span class="lbl">Sound</span></button>
+<div id="cleanhint" class="glass">Vista limpia · pulsa V o Esc (o Select en el mando) para recuperar los controles</div>
+<div id="caption" aria-live="polite"></div>
+<div id="toolbar" class="glass" role="toolbar" aria-label="Controles de la escena">
+  <button id="tb-cam" class="sec" type="button" title="Cambiar entre cámara cinemática y manual (C)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h10v9h-10z"></path><path d="M13.5 10.5l6-3v9l-6-3"></path></svg><span class="lbl">Cámara manual</span></button>
+  <button id="tb-hold" class="sec" type="button" aria-pressed="false" title="Fijar el plano actual (P)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="11" width="13" height="9" rx="2.2"></rect><path d="M8.5 11V8.2a3.5 3.5 0 0 1 7 0V11"></path></svg><span class="lbl">Fijar plano</span></button>
+  <button id="tb-freeze" class="sec" type="button" aria-pressed="false" title="Congelar el tiempo (O)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M10 9v6M14 9v6"></path></svg><span class="lbl">Congelar tiempo</span></button>
+  <button id="tb-clean" class="sec" type="button" title="Ocultar todo para hacer capturas (V; Esc para salir)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg><span class="lbl">Vista limpia</span></button>
+  <button id="tb-weather" class="sec" type="button" title="Cambiar el clima y la estación (T)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3"></circle><path d="M8.5 2.5v1.2M2.5 8.5h1.2M4.3 4.3l.9.9M12.7 4.3l-.9.9"></path><path d="M8.5 19.5h9a3.5 3.5 0 0 0 .2-7 5 5 0 0 0-9.4 1.3 2.9 2.9 0 0 0 .2 5.7z"></path></svg><span class="lbl">Soleado</span></button>
+  <button id="tb-sound" class="sec" type="button" aria-pressed="false" title="Silenciar / activar el sonido (M)" aria-label="Silenciar"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-on"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path><path d="M15.5 9a4 4 0 0 1 0 6M18.2 6.5a7.6 7.6 0 0 1 0 11"></path></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-off"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg><span class="lbl">Sonido</span></button>
   <span class="sep" aria-hidden="true"></span>
-  <button id="strokebtn" type="button" title="Gently stroke a koi (G)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V6.8a1.4 1.4 0 0 1 2.8 0V12M10.8 11.5V5.4a1.4 1.4 0 0 1 2.8 0v6.1M13.6 11.6V6.6a1.4 1.4 0 0 1 2.8 0v6.6M16.4 10.4a1.4 1.4 0 0 1 2.8 0v4.3a6.8 6.8 0 0 1-6.8 6.8h-.6a6.3 6.3 0 0 1-5.4-3.1l-1.9-3.3a1.4 1.4 0 0 1 2.4-1.4L8 15"></path></svg><span class="lbl">Stroke a koi</span></button>
-  <button id="feedbtn" class="primary" type="button" title="Feed the koi (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.5" cy="6.5" r="1.3"></circle><circle cx="12" cy="4.5" r="1.3"></circle><circle cx="16.5" cy="7" r="1.3"></circle><circle cx="11" cy="9.5" r="1.3"></circle><path d="M3.5 13.5c1.5 4 5 6.5 8.5 6.5s7-2.5 8.5-6.5"></path></svg><span class="lbl">Feed the koi</span></button>
+  <button id="strokebtn" type="button" title="Acariciar una carpa con suavidad (G)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V6.8a1.4 1.4 0 0 1 2.8 0V12M10.8 11.5V5.4a1.4 1.4 0 0 1 2.8 0v6.1M13.6 11.6V6.6a1.4 1.4 0 0 1 2.8 0v6.6M16.4 10.4a1.4 1.4 0 0 1 2.8 0v4.3a6.8 6.8 0 0 1-6.8 6.8h-.6a6.3 6.3 0 0 1-5.4-3.1l-1.9-3.3a1.4 1.4 0 0 1 2.4-1.4L8 15"></path></svg><span class="lbl">Acariciar</span></button>
+  <button id="feedbtn" class="primary" type="button" title="Dar de comer a las carpas (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.5" cy="6.5" r="1.3"></circle><circle cx="12" cy="4.5" r="1.3"></circle><circle cx="16.5" cy="7" r="1.3"></circle><circle cx="11" cy="9.5" r="1.3"></circle><path d="M3.5 13.5c1.5 4 5 6.5 8.5 6.5s7-2.5 8.5-6.5"></path></svg><span class="lbl">Alimentar</span></button>
+</div>
+<div id="touchpad" aria-hidden="true">
+  <div id="joy"><i id="joyk"></i></div>
+  <div id="alt"><button id="alt-up" type="button" tabindex="-1" aria-label="Subir">▲</button><button id="alt-dn" type="button" tabindex="-1" aria-label="Bajar">▼</button></div>
 </div>
 <script src="three.min.js"></script>
 <script src="dat.gui.min.js"></script>
@@ -263,6 +332,16 @@ async function progress(frac, msg) {
   $('loadmsg').textContent = msg;
   await nextTick();
 }
+// nombres visibles en español (las claves internas siguen en inglés)
+const TXT = {
+  wx: { Sunny: 'Soleado', Rain: 'Lluvia', Autumn: 'Otoño', Winter: 'Invierno' },
+  wxToast: { Sunny: 'Día soleado de primavera', Rain: 'Lluvia (tsuyu)', Autumn: 'Colores de otoño', Winter: 'Invierno: nevada' },
+  cam: { Cinematic: 'Cinemática', Manual: 'Manual', 'Follow koi': 'Seguir una carpa', 'Follow turtle': 'Seguir la tortuga' },
+  q: { Low: 'Baja', High: 'Alta' },
+  view: { Turtle: 'Tortuga', Frog: 'Rana', Dragonfly: 'Libélula', 'Bamboo grove': 'Bosque de bambú', 'Wisteria arbor': 'Glorieta de glicinias', Hydrangeas: 'Hortensias',
+    'Spider lilies': 'Lirios araña', Peonies: 'Peonías', Camellia: 'Camelia', 'Water lilies': 'Nenúfares', 'Bridge timber': 'Madera del puente', 'Stone & moss': 'Piedra y musgo',
+    Lotus: 'Loto', Underwater: 'Bajo el agua', 'Lily roots (underwater)': 'Raíces de nenúfar (bajo el agua)', Waterfall: 'Cascada' },
+};
 function toast(msg) {
   const t = $('toast'); t.textContent = msg; t.style.opacity = 1;
   clearTimeout(toast._h); toast._h = setTimeout(() => (t.style.opacity = 0), 2200);
@@ -394,7 +473,7 @@ async function buildTextures() {
     }
     TEX.waterNormal = dataTex(heightToNormal(H, N, N, 26), N, N, false);
   }
-  await progress(0.08, 'Water ripple normals');
+  await progress(0.08, 'Ondas del agua');
 
   // --- Caustics: Voronoi cell-edge network, softened (two copies are multiplied in-shader)
   {
@@ -412,7 +491,7 @@ async function buildTextures() {
     TEX.caustics = dataTex(data, N, N, false);
     TEX.causticMean = sum / (N * N);
   }
-  await progress(0.16, 'Caustic patterns');
+  await progress(0.16, 'Reflejos del fondo');
 
   // --- Granite: speckled feldspar/quartz/biotite with subtle grain
   {
@@ -441,7 +520,7 @@ async function buildTextures() {
       return [c[0], c[1], c[2], a * 0.7 + b * 0.3, 0.9];
     }, 4);
   }
-  await progress(0.26, 'Granite, boulders and moss');
+  await progress(0.26, 'Granito, rocas y musgo');
 
   // --- Gravel: dense pebbles (Worley domes), fine & high-frequency normal
   {
@@ -460,7 +539,7 @@ async function buildTextures() {
       return [c[0], c[1], c[2], Math.pow(dome, 0.6) * 0.85 + fine * 0.08, 0.92];
     }, 7);
   }
-  await progress(0.34, 'Pond gravel');
+  await progress(0.34, 'Grava del estanque');
 
   // --- Ground: fine moss/grass lawn with soil patches
   {
@@ -475,7 +554,7 @@ async function buildTextures() {
       return [c[0], c[1], c[2], fine * 0.5 + blade * 0.5, 0.95];
     }, 3);
   }
-  await progress(0.4, 'Moss lawn');
+  await progress(0.4, 'Césped de musgo');
 
   // --- Wood (cedar): grain stretched along u, annual rings, pores
   {
@@ -526,7 +605,7 @@ async function buildTextures() {
       return [c[0], c[1], c[2], h, 0.55 + n * 0.2];
     }, 8);
   }
-  await progress(0.48, 'Cedar, bark and roof tiles');
+  await progress(0.48, 'Cedro, corteza y tejas');
 
   // --- Leaf-card atlases (drawn on canvas with alpha)
   TEX.mapleLeaves = leafCard('maple');
@@ -551,7 +630,7 @@ async function buildTextures() {
     return [c[0], c[1], c[2], 0.5 + fine * 0.15 + lent * 0.25 - band * 0.05, 0.75 - band * 0.2];
   }, 5);
   TEX.lily = lilyTex();
-  await progress(0.56, 'Foliage cards');
+  await progress(0.56, 'Follaje');
 }
 
 // Palmate maple, pine needle tufts, etc. Each card holds a cluster of leaves on transparent ground.
@@ -6409,7 +6488,7 @@ function renderPost() {
 }
 
 /* ------------------------------------------------------------------ 13. CAMERA CONTROLS */
-const CTRL = { yaw: 0.06, pitch: -0.07, keys: {}, dragging: false, moved: 0, lastX: 0, lastY: 0 };
+const CTRL = { yaw: 0.06, pitch: -0.07, keys: {}, dragging: false, moved: 0, lastX: 0, lastY: 0, pad: { lx: 0, ly: 0, rx: 0, ry: 0, lt: 0, rt: 0, boost: 0 }, joy: { x: 0, y: 0 }, altT: 0 };
 const raycaster = new THREE.Raycaster(), _ndc = new THREE.Vector2(), waterPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -WATER_Y);
 function setupControls() {
   addEventListener('keydown', (e) => {
@@ -6441,7 +6520,8 @@ function setupControls() {
     if (STROKE.active && STROKE.phaseStart >= 0) { STROKE.user = clamp((STROKE.user < 0 ? 0.3 : STROKE.user) + dx * 0.0025 * (STROKE.along.dot(_hr.crossVectors(camera.getWorldDirection(_hf), _up)) > 0 ? 1 : -1), 0.1, 0.85); return; }
     if (P.cameraMode === 'Manual' && !P.holdCamera) { CTRL.yaw -= dx * 0.0032; CTRL.pitch = clamp(CTRL.pitch - dy * 0.0032, -1.45, 1.45); }
   });
-  canvas.addEventListener('wheel', (e) => { if (P.cameraMode !== 'Manual') return; e.preventDefault(); CTRL.speedMul = clamp((CTRL.speedMul || 1) * (e.deltaY > 0 ? 0.85 : 1.18), 0.05, 5); toast(`Fly speed ×${CTRL.speedMul.toFixed(2)}`); }, { passive: false });
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  canvas.addEventListener('wheel', (e) => { if (P.cameraMode !== 'Manual') return; e.preventDefault(); CTRL.speedMul = clamp((CTRL.speedMul || 1) * (e.deltaY > 0 ? 0.85 : 1.18), 0.05, 5); toast(`Velocidad de vuelo ×${CTRL.speedMul.toFixed(2).replace('.', ',')}`); }, { passive: false });
   canvas.addEventListener('pointerup', (e) => {
     CTRL.dragging = false; STROKE.user = -1;
     if (CTRL.moved < 5) {                               // a click: drop a ripple where the ray meets the water
@@ -6473,19 +6553,19 @@ function clearKeys() { for (const k in CTRL.keys) CTRL.keys[k] = false; CTRL.dra
 let guardTimer = 0;
 function screenshotGuard() {
   clearKeys();
-  if (!P.holdCamera) { setHold(true, true); toast('Camera held for your screenshot · P to release'); }
+  if (!P.holdCamera) { setHold(true, true); toast('Plano fijado para tu captura · P para soltarlo'); }
   clearTimeout(guardTimer); guardTimer = setTimeout(() => { if (P.holdCamera && P._autoHold) setHold(false); }, 12000);
 }
 function setHold(v, auto = false) {
   P.holdCamera = v; P._autoHold = v && auto;
-  $('tb-hold').setAttribute('aria-pressed', String(v)); setBtnLabel('tb-hold', v ? 'Shot held' : 'Hold shot');
-  if (!auto) toast(v ? 'Shot held · camera will not move (P to release)' : 'Camera released');
+  $('tb-hold').setAttribute('aria-pressed', String(v)); setBtnLabel('tb-hold', v ? 'Plano fijado' : 'Fijar plano');
+  if (!auto) toast(v ? 'Plano fijado · la cámara no se moverá (P para soltar)' : 'Cámara liberada');
   if (!v && P.cameraMode === 'Cinematic') PATH.blend = 0;
   if (GUI_CTRL.hold) GUI_CTRL.hold.updateDisplay();
 }
 function setFreeze(v) {
-  P.freezeScene = v; $('tb-freeze').setAttribute('aria-pressed', String(v)); setBtnLabel('tb-freeze', v ? 'Time frozen' : 'Freeze time');
-  toast(v ? 'Time frozen · O to resume' : 'Time resumed');
+  P.freezeScene = v; $('tb-freeze').setAttribute('aria-pressed', String(v)); setBtnLabel('tb-freeze', v ? 'Tiempo congelado' : 'Congelar tiempo');
+  toast(v ? 'Tiempo congelado · O para reanudar' : 'Tiempo reanudado');
   if (GUI_CTRL.freeze) GUI_CTRL.freeze.updateDisplay();
 }
 // toolbar buttons carry an icon + a label span; only the label changes
@@ -6495,7 +6575,7 @@ function setMuted(m) {
   P.audio = !m;
   if (m) { if (typeof stopAudio === 'function') stopAudio(); } else startAudio(true);
   const b = $('tb-sound');
-  if (b) { b.setAttribute('aria-pressed', String(m)); b.setAttribute('aria-label', m ? 'Unmute' : 'Mute'); b.title = (m ? 'Unmute' : 'Mute') + ' (M)'; setBtnLabel('tb-sound', m ? 'Muted' : 'Sound'); }
+  if (b) { b.setAttribute('aria-pressed', String(m)); b.setAttribute('aria-label', m ? 'Activar el sonido' : 'Silenciar'); b.title = (m ? 'Activar el sonido' : 'Silenciar') + ' (M)'; setBtnLabel('tb-sound', m ? 'Sin sonido' : 'Sonido'); }
   if (GUI_CTRL.audio) GUI_CTRL.audio.updateDisplay();
   try { localStorage.setItem('koi.muted', m ? '1' : '0'); } catch (e) { /* storage unavailable */ }
 }
@@ -6521,14 +6601,110 @@ function updateFreeCamera(dt) {
   if (k.KeyD || k.ArrowRight) camera.position.addScaledVector(_right, sp);
   if (k.KeyQ || k.PageDown) camera.position.y -= sp * 0.7;          // descend (dives when over the pond)
   if (k.Space || k.KeyR || k.PageUp) camera.position.y += sp * 0.7;
+  // mando y joystick táctil (analógicos)
+  const pd = CTRL.pad, jy = CTRL.joy, spa = sp * (1 + 1.6 * pd.boost);
+  const mvF = clamp(-(pd.ly + jy.y), -1, 1), mvR = clamp(pd.lx + jy.x, -1, 1), mvU = clamp(pd.rt - pd.lt + CTRL.altT, -1, 1);
+  if (mvF) camera.position.addScaledVector(_fwd, mvF * spa);
+  if (mvR) camera.position.addScaledVector(_right, mvR * spa);
+  if (mvU) camera.position.y += mvU * spa * 0.7;
+  if (pd.rx || pd.ry) {
+    CTRL.yaw -= pd.rx * 2.1 * dt; CTRL.pitch = clamp(CTRL.pitch - pd.ry * 1.5 * dt, -1.45, 1.45);
+    camera.rotation.set(CTRL.pitch, CTRL.yaw, 0, 'YXZ');
+  }
 }
 function onCameraMode() {
   if (P.cameraMode === 'Manual') {
     const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'); CTRL.yaw = e.y; CTRL.pitch = e.x;
   } else PATH.blend = 0;
   if (GUI_CTRL.cam) GUI_CTRL.cam.updateDisplay();
-  setBtnLabel('tb-cam', P.cameraMode === 'Cinematic' ? 'Manual camera' : 'Cinematic camera');
-  toast(P.cameraMode === 'Manual' ? 'Manual camera: drag to look · WASD move · Q down · Space up · Shift faster · wheel speed' : P.cameraMode === 'Follow koi' ? 'Following a koi (K for the next fish)' : P.cameraMode === 'Follow turtle' ? 'Following the turtle' : 'Cinematic camera');
+  setBtnLabel('tb-cam', P.cameraMode === 'Cinematic' ? 'Cámara manual' : 'Cámara cinemática');
+  toast(P.cameraMode === 'Manual' ? (document.body.classList.contains('is-touch') ? 'Cámara manual: joystick para moverte · arrastra para mirar · ▲▼ subir y bajar' : 'Cámara manual: arrastra para mirar · WASD mover · Q bajar · Espacio subir · Mayús más rápido · rueda: velocidad') : P.cameraMode === 'Follow koi' ? 'Siguiendo una carpa (K para la siguiente)' : P.cameraMode === 'Follow turtle' ? 'Siguiendo la tortuga' : 'Cámara cinemática');
+}
+
+
+/* ------------------------------------------------------------------ 13c. MANDO Y PANTALLA TÁCTIL */
+// Mando estándar (Xbox / PlayStation / Switch Pro): 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 6 LT, 7 RT, 8 Select, 9 Start, 10 L3, 11 R3, 12-15 cruceta
+const PAD = { prev: [], idx: -1, lastSwitch: 0, guideT: 0 };
+const padDead = (x, y) => { const m = Math.hypot(x, y); if (m < 0.18) return [0, 0]; const k = (m - 0.18) / 0.82 / m; return [x * k, y * k]; };
+function padConnected(on) {
+  document.body.classList.toggle('has-pad', on);
+  toast(on ? 'Mando conectado · pulsa Start para ver los botones' : 'Mando desconectado');
+  if (!on) { const p = CTRL.pad; p.lx = p.ly = p.rx = p.ry = p.lt = p.rt = p.boost = 0; PAD.prev = []; PAD.idx = -1; }
+}
+addEventListener('gamepadconnected', () => padConnected(true));
+addEventListener('gamepaddisconnected', () => { const any = [...(navigator.getGamepads ? navigator.getGamepads() : [])].some((g) => g && g.connected); if (!any) padConnected(false); });
+let _manualCls = null;
+function padFrame(dt) {
+  // estado de la interfaz: joystick táctil solo con la cámara manual
+  const man = P.cameraMode === 'Manual';
+  if (man !== _manualCls) { _manualCls = man; document.body.classList.toggle('manual', man); }
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let g = null; for (const q of pads) if (q && q.connected && q.mapping !== '' && (!g || q.index === PAD.idx)) g = q;
+  if (!g) for (const q of pads) if (q && q.connected) { g = q; break; }
+  const p = CTRL.pad;
+  if (!g) { p.lx = p.ly = p.rx = p.ry = p.lt = p.rt = p.boost = 0; return; }
+  PAD.idx = g.index;
+  if (!document.body.classList.contains('has-pad')) document.body.classList.add('has-pad');
+  const b = (i) => { const x = g.buttons[i]; return !!x && (x.pressed || x.value > 0.5); };
+  const hit = (i) => b(i) && !PAD.prev[i];
+  [p.lx, p.ly] = padDead(g.axes[0] || 0, g.axes[1] || 0);
+  [p.rx, p.ry] = padDead(g.axes[2] || 0, g.axes[3] || 0);
+  p.lt = g.buttons[6] ? g.buttons[6].value : 0; p.rt = g.buttons[7] ? g.buttons[7].value : 0;
+  if (p.lt < 0.1) p.lt = 0; if (p.rt < 0.1) p.rt = 0;
+  p.boost = b(5) ? 1 : 0;
+  let any = false; for (let i = 0; i < g.buttons.length; i++) if (b(i)) { any = true; break; }
+  if (any) startAudio();
+  if (hit(0)) startFeeding();
+  if (hit(1)) startStroke();
+  if (hit(2)) toggleCameraMode();
+  if (hit(3)) cycleWeather();
+  if (hit(4)) { if (P.cameraMode === 'Follow koi') FOLLOW.idx++; else P.cameraMode = 'Follow koi'; onCameraMode(); }
+  if (hit(8)) setClean(!P.cleanView);
+  if (hit(9)) setGuide($('help').classList.contains('hidden'));
+  if (hit(10)) setHold(!P.holdCamera);
+  if (hit(11)) setFreeze(!P.freezeScene);
+  if (hit(12)) setMuted(P.audio);
+  if (hit(13)) padRipple();
+  if (hit(14) || hit(15)) { CTRL.speedMul = clamp((CTRL.speedMul || 1) * (hit(15) ? 1.25 : 0.8), 0.05, 5); toast(`Velocidad de vuelo ×${CTRL.speedMul.toFixed(2).replace('.', ',')}`); }
+  // acariciar: el stick derecho mueve la mano a lo largo de la carpa
+  if (STROKE.active && STROKE.phaseStart >= 0 && (p.rx || p.lx)) {
+    const sgn = STROKE.along.dot(_hr.crossVectors(camera.getWorldDirection(_hf), _up)) > 0 ? 1 : -1;
+    STROKE.user = clamp((STROKE.user < 0 ? 0.3 : STROKE.user) + (p.rx || p.lx) * dt * 0.5 * sgn, 0.1, 0.85);
+  }
+  // con la cámara cinemática, mover un stick pasa a manual
+  if ((Math.hypot(p.lx, p.ly) > 0.5 || Math.hypot(p.rx, p.ry) > 0.5) && P.cameraMode === 'Cinematic' && performance.now() - PAD.lastSwitch > 1500 && !STROKE.active && !FEED.active) {
+    PAD.lastSwitch = performance.now(); P.cameraMode = 'Manual'; onCameraMode();
+  }
+  for (let i = 0; i < g.buttons.length; i++) PAD.prev[i] = b(i);
+}
+// gota en el agua (y salto de la rana) en el centro de la vista
+function padRipple() {
+  _ndc.set(0, 0); raycaster.setFromCamera(_ndc, camera);
+  if (frogHit(raycaster.ray)) { frogJump(); return; }
+  const hit = raycaster.ray.intersectPlane(waterPlane, new THREE.Vector3());
+  if (hit && sdf(hit.x, hit.z) < -0.05 && !STROKE.active) { addDrop(hit.x, hit.z, 0.16, -0.014); bubbleBurst(hit.x, WATER_Y - 0.01, hit.z, 10, 0.03, 0.0005, 0.003, 0.25); spawnSplash(hit.x, hit.z, 0.45, WATER_Y, true); splashAt(hit.x, WATER_Y, hit.z, 0.42); }
+}
+// pantalla táctil: joystick + botones de altura; la barra de abajo se ajusta al dedo
+function setupTouchPad() {
+  const touch = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window;
+  if (touch) document.body.classList.add('is-touch');
+  addEventListener('touchstart', () => document.body.classList.add('is-touch'), { once: true, passive: true });
+  const tb = $('toolbar'), fit = () => document.documentElement.style.setProperty('--tbh', tb.offsetHeight + 'px');
+  fit(); addEventListener('resize', fit); if (window.ResizeObserver) new ResizeObserver(fit).observe(tb);
+  const joy = $('joy'), knob = $('joyk'), R = 46; let pid = -1, cx = 0, cy = 0;
+  const set = (x, y) => { const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; } const d = l < 0.12 ? 0 : 1; CTRL.joy.x = x * d; CTRL.joy.y = y * d; knob.style.transform = `translate(${x * R}px, ${y * R}px)`; };
+  const mv = (e) => set((e.clientX - cx) / R, (e.clientY - cy) / R);
+  joy.addEventListener('pointerdown', (e) => { e.preventDefault(); pid = e.pointerId; try { joy.setPointerCapture(pid); } catch (_) {} const r = joy.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; mv(e); startAudio(); });
+  joy.addEventListener('pointermove', (e) => { if (e.pointerId === pid) mv(e); });
+  const end = (e) => { if (e.pointerId === pid) { pid = -1; set(0, 0); } };
+  joy.addEventListener('pointerup', end); joy.addEventListener('pointercancel', end); joy.addEventListener('lostpointercapture', end);
+  for (const [id, v] of [['alt-up', 1], ['alt-dn', -1]]) {
+    const el = $(id);
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (_) {} CTRL.altT = v; el.classList.add('on'); startAudio(); });
+    const off = () => { if (CTRL.altT === v) CTRL.altT = 0; el.classList.remove('on'); };
+    el.addEventListener('pointerup', off); el.addEventListener('pointercancel', off); el.addEventListener('lostpointercapture', off);
+  }
+  addEventListener('blur', () => { set(0, 0); CTRL.altT = 0; });
 }
 
 /* ------------------------------------------------------------------ 13b. CINEMATIC PATH, DIVE EFFECTS & AUDIO */
@@ -6568,20 +6744,20 @@ function buildMovie() {
   const frogP = () => { const p = new THREE.Vector3(); if (FROG.root) FROG.root.getWorldPosition(p); return p; };
   MOVIE.shots = [
     // 1 — the garden from above
-    { cap: 'The garden from above', T: 13, pos: (u) => V(Math.sin(lerp(-0.5, 0.35, u)) * 9, lerp(17, 12.5, u), Math.cos(lerp(-0.5, 0.35, u)) * 9 + 1), look: () => V(0, 0, -1.8) },
+    { cap: 'El jardín desde arriba', T: 13, pos: (u) => V(Math.sin(lerp(-0.5, 0.35, u)) * 9, lerp(17, 12.5, u), Math.cos(lerp(-0.5, 0.35, u)) * 9 + 1), look: () => V(0, 0, -1.8) },
     // 2 — the pond and its water
-    { cap: 'The koi pond', T: 11, pos: (u) => L(V(-0.35, 0.62, 5.4), V(0.15, 0.36, 3.3), u), look: (u) => L(V(0.2, 0.5, -3.6), V(0.0, 0.2, -3.2), u) },
-    { cap: 'Koi', T: 11, start: () => { const fs = KOI.fish.slice(0, Math.min(P.fishCount, KOI.fish.length)); MOVIE.koi = fs.reduce((b, f) => (f.p.y > b.p.y && sdf(f.p.x, f.p.z) < -0.8 ? f : b), fs[0]); },
+    { cap: 'El estanque de las carpas', T: 11, pos: (u) => L(V(-0.35, 0.62, 5.4), V(0.15, 0.36, 3.3), u), look: (u) => L(V(0.2, 0.5, -3.6), V(0.0, 0.2, -3.2), u) },
+    { cap: 'Carpas koi', T: 11, start: () => { const fs = KOI.fish.slice(0, Math.min(P.fishCount, KOI.fish.length)); MOVIE.koi = fs.reduce((b, f) => (f.p.y > b.p.y && sdf(f.p.x, f.p.z) < -0.8 ? f : b), fs[0]); },
       pos: (u) => { const f = MOVIE.koi || KOI.fish[0], a = f.heading + 2.4 + u * 0.6; return V(f.p.x + Math.cos(a) * 0.8, WATER_Y + lerp(0.6, 0.38, u), f.p.z - Math.sin(a) * 0.8); }, look: () => (MOVIE.koi || KOI.fish[0]).p.clone() },
-    { cap: 'Sacred lotus (hasu)', T: 10, pos: orbit(V(-2.62, 0, -0.15), 0.95, 0.62, 0.35, 1.3), look: () => V(-2.62, 0.5, -0.1) },
+    { cap: 'Loto sagrado (hasu)', T: 10, pos: orbit(V(-2.62, 0, -0.15), 0.95, 0.62, 0.35, 1.3), look: () => V(-2.62, 0.5, -0.1) },
     // 3 — bamboo and sakura
-    { cap: 'Bamboo grove — Phyllostachys', T: 12, pos: (u) => V(lerp(-5.9, -6.4, u), lerp(8.5, 1.5, Math.pow(u, 0.85)), lerp(-10.2, -11.4, u)), look: (u) => V(-9.4, lerp(7.0, 2.6, u), lerp(-10.8, -11.6, u)) },
-    { cap: 'Weeping cherry (shidare-zakura)', T: 10, pos: (u) => L(V(-4.6, 1.15, -3.3), V(-5.3, 1.3, -2.5), u), look: (u) => L(V(-6.9, 2.3, -1.0), V(-6.9, 1.8, -1.0), u) },
-    { cap: 'Cherry blossom', T: 11, pos: (u) => L(V(8.4, 0.9, 4.4), V(7.7, 1.15, 3.3), u), look: (u) => L(V(5.0, 1.9, 2.6), V(4.6, 1.6, 2.1), u) },
+    { cap: 'Bosque de bambú — Phyllostachys', T: 12, pos: (u) => V(lerp(-5.9, -6.4, u), lerp(8.5, 1.5, Math.pow(u, 0.85)), lerp(-10.2, -11.4, u)), look: (u) => V(-9.4, lerp(7.0, 2.6, u), lerp(-10.8, -11.6, u)) },
+    { cap: 'Cerezo llorón (shidare-zakura)', T: 10, pos: (u) => L(V(-4.6, 1.15, -3.3), V(-5.3, 1.3, -2.5), u), look: (u) => L(V(-6.9, 2.3, -1.0), V(-6.9, 1.8, -1.0), u) },
+    { cap: 'Flor de cerezo', T: 11, pos: (u) => L(V(8.4, 0.9, 4.4), V(7.7, 1.15, 3.3), u), look: (u) => L(V(5.0, 1.9, 2.6), V(4.6, 1.6, 2.1), u) },
     // 4 — the pond's creatures, then below the surface
-    { cap: 'Pond frog', T: 10, pos: (u) => { const p = frogP(), a = FROG.baseYaw + lerp(-0.4, 0.5, u); return V(p.x + Math.cos(a) * lerp(0.42, 0.24, u), p.y + lerp(0.14, 0.07, u), p.z - Math.sin(a) * lerp(0.42, 0.24, u)); }, look: () => frogP().add(V(0, 0.03, 0)), skip: () => !FROG.root || !WORLD.frogPad.mesh.visible },
-    { cap: 'Yellow-bellied slider', T: 9, pos: (u) => { const T0 = TURTLE.pos, a = TURTLE.yaw + 1.9 + u * 0.4, r = lerp(0.8, 0.5, u); return V(T0.x + Math.cos(a) * r, Math.max(WATER_Y + 0.35, T0.y + lerp(0.4, 0.22, u)), T0.z - Math.sin(a) * r); }, look: () => V(TURTLE.pos.x, TURTLE.pos.y + 0.04, TURTLE.pos.z), skip: () => !TURTLE.root || TURTLE.off },
-    { cap: 'Beneath the surface', T: 13, under: true, pos: (u) => L(V(0.6, 0.35, 2.0), V(0.2, -0.5, 0.7), smoothstep(0, 0.45, u)).add(V(-u * 0.6, 0, -u * 0.8 * smoothstep(0.45, 1, u))), look: (u) => L(V(0.0, -0.3, 0.6), V(-0.6, -0.55, -1.4), u), skip: () => SH.uIce.value > 0.5 },
+    { cap: 'Rana del estanque', T: 10, pos: (u) => { const p = frogP(), a = FROG.baseYaw + lerp(-0.4, 0.5, u); return V(p.x + Math.cos(a) * lerp(0.42, 0.24, u), p.y + lerp(0.14, 0.07, u), p.z - Math.sin(a) * lerp(0.42, 0.24, u)); }, look: () => frogP().add(V(0, 0.03, 0)), skip: () => !FROG.root || !WORLD.frogPad.mesh.visible },
+    { cap: 'Tortuga de orejas amarillas', T: 9, pos: (u) => { const T0 = TURTLE.pos, a = TURTLE.yaw + 1.9 + u * 0.4, r = lerp(0.8, 0.5, u); return V(T0.x + Math.cos(a) * r, Math.max(WATER_Y + 0.35, T0.y + lerp(0.4, 0.22, u)), T0.z - Math.sin(a) * r); }, look: () => V(TURTLE.pos.x, TURTLE.pos.y + 0.04, TURTLE.pos.z), skip: () => !TURTLE.root || TURTLE.off },
+    { cap: 'Bajo la superficie', T: 13, under: true, pos: (u) => L(V(0.6, 0.35, 2.0), V(0.2, -0.5, 0.7), smoothstep(0, 0.45, u)).add(V(-u * 0.6, 0, -u * 0.8 * smoothstep(0.45, 1, u))), look: (u) => L(V(0.0, -0.3, 0.6), V(-0.6, -0.55, -1.4), u), skip: () => SH.uIce.value > 0.5 },
     // 5 — and back to the pond
     { cap: '', T: 11, pos: (u) => L(V(0.1, 0.4, 3.6), V(-0.3, 0.6, 5.6), u), look: (u) => L(V(0.1, 0.25, -3.2), V(0.2, 0.5, -3.6), u) },
   ];
@@ -6676,7 +6852,7 @@ function goToView(name) {
   P.cameraMode = 'Manual'; if (GUI_CTRL.cam) GUI_CTRL.cam.updateDisplay();
   TWEEN.from.copy(camera.position); TWEEN.q0.copy(camera.quaternion); TWEEN.to.copy(pos);
   _pm.lookAt(pos, look, _up); TWEEN.q1.setFromRotationMatrix(_pm); TWEEN.t = 0;
-  toast(name);
+  toast(TXT.view[name] || name);
 }
 function updateCamera(dt, t) {
   if (P.holdCamera || (P.cleanView && P.cameraMode !== 'Manual')) return;   // hold the shot: nothing moves the camera
@@ -7483,7 +7659,7 @@ function startFeeding() {
   if (P.holdCamera) setHold(false);
   for (let i = 0; i < KOI.fish.length; i++) { const f = KOI.fish[i]; f.react = Math.hypot(f.p.x - FEED.point.x, f.p.z - FEED.point.z) * 0.22 + rr(0.6, 1.4); }
   $('feedbtn').disabled = true;
-  toast('Feeding the koi');
+  toast('Dando de comer a las carpas');
   if (typeof audioEvent === 'function') audioEvent('feedStart');
 }
 function nearestFood(pos) {
@@ -7602,7 +7778,7 @@ function startStroke() {
   STROKE.fish.stroke = 1;
   STROKE.t = 0; STROKE.phaseStart = -1; STROKE.user = -1; STROKE.active = true; STROKE.touch = 0; STROKE.hpInit = false; STROKE.col = { lift: 0 };
   $('strokebtn').disabled = true; $('feedbtn').disabled = true;
-  toast('A koi is coming to your hand… drag across it to stroke');
+  toast('Una carpa se acerca a tu mano… desliza sobre ella para acariciarla');
   startAudio();
 }
 function endStroke() {
@@ -7804,8 +7980,8 @@ function setWeather(name) {
   if (!WX_PRESETS[name]) return;
   WX.from = JSON.parse(JSON.stringify(WX.cur)); WX.name = name; WX.t = 0; P.weather = name;
   if (GUI_CTRL.weather) GUI_CTRL.weather.updateDisplay();
-  setBtnLabel('tb-weather', name); const b = $('tb-weather'); if (b) b.title = 'Weather: ' + name + ' · change the season (T)';
-  toast({ Sunny: 'Sunny spring day', Rain: 'Rain (tsuyu)', Autumn: 'Autumn colours', Winter: 'Winter: snowfall' }[name]);
+  setBtnLabel('tb-weather', TXT.wx[name]); const b = $('tb-weather'); if (b) b.title = 'Clima: ' + TXT.wx[name] + ' · cambiar de estación (T)';
+  toast(TXT.wxToast[name]);
 }
 function cycleWeather() { const k = Object.keys(WX_PRESETS); setWeather(k[(k.indexOf(WX.name) + 1) % k.length]); }
 function updateWeather(dt) {
@@ -8078,53 +8254,54 @@ function setQuality(q, silent) {
   if (GUI_CTRL.quality) GUI_CTRL.quality.updateDisplay();
 }
 function buildGUI() {
+  dat.GUI.TEXT_OPEN = 'Abrir controles'; dat.GUI.TEXT_CLOSED = 'Cerrar controles';
   const gui = new dat.GUI({ width: 290 });
-  const fE = gui.addFolder('Environment');
-  GUI_CTRL.weather = fE.add(P, 'weather', Object.keys(WX_PRESETS)).name('Weather / season').onChange(setWeather);
-  GUI_CTRL.time = fE.add(P, 'timeOfDay', 6, 19, 0.05).name('Time of day').onChange(updateSun);
-  fE.add(P, 'sunAzimuth', -180, 180, 1).name('Sun azimuth').onChange(updateSun);
-  GUI_CTRL.wind = fE.add(P, 'windSpeed', 0, 1, 0.01).name('Wind').onChange(updateWaves);
-  fE.add(P, 'windDir', 0, 360, 1).name('Wind direction').onChange(updateWaves);
+  const fE = gui.addFolder('Entorno');
+  GUI_CTRL.weather = fE.add(P, 'weather', { 'Soleado': 'Sunny', 'Lluvia': 'Rain', 'Otoño': 'Autumn', 'Invierno': 'Winter' }).name('Clima / estación').onChange(setWeather);
+  GUI_CTRL.time = fE.add(P, 'timeOfDay', 6, 19, 0.05).name('Hora del día').onChange(updateSun);
+  fE.add(P, 'sunAzimuth', -180, 180, 1).name('Posición del sol').onChange(updateSun);
+  GUI_CTRL.wind = fE.add(P, 'windSpeed', 0, 1, 0.01).name('Viento').onChange(updateWaves);
+  fE.add(P, 'windDir', 0, 360, 1).name('Dirección del viento').onChange(updateWaves);
   fE.open();
-  const fW = gui.addFolder('Water');
-  fW.add(P, 'waterClarity', 0.3, 2.0, 0.01).name('Clarity').onChange(updateClarity);
-  fW.add(P, 'waveHeight', 0, 2.5, 0.01).name('Wave height').onChange(updateWaves);
-  fW.add(P, 'causticStrength', 0, 2, 0.01).name('Caustics').onChange((v) => (SH.uCausticStr.value = v));
+  const fW = gui.addFolder('Agua');
+  fW.add(P, 'waterClarity', 0.3, 2.0, 0.01).name('Transparencia').onChange(updateClarity);
+  fW.add(P, 'waveHeight', 0, 2.5, 0.01).name('Altura de las olas').onChange(updateWaves);
+  fW.add(P, 'causticStrength', 0, 2, 0.01).name('Reflejos del fondo').onChange((v) => (SH.uCausticStr.value = v));
   fW.open();
-  const fK = gui.addFolder('Koi');
-  GUI_CTRL.fish = fK.add(P, 'fishCount', 0, KOI_N, 1).name('Fish count');
-  fK.add({ feed: () => startFeeding() }, 'feed').name('Feed the koi (E)');
+  const fK = gui.addFolder('Carpas');
+  GUI_CTRL.fish = fK.add(P, 'fishCount', 0, KOI_N, 1).name('Número de carpas');
+  fK.add({ feed: () => startFeeding() }, 'feed').name('Dar de comer (E)');
   fK.open();
-  const fR = gui.addFolder('Rendering');
-  GUI_CTRL.quality = fR.add(P, 'quality', ['Low', 'High']).name('Quality').onChange(setQuality);
-  fR.add(P, 'autoQuality').name('Auto-drop to Low');
-  GUI_CTRL.expo = fR.add(P, 'exposure', 0.3, 2, 0.01).name('Exposure');
-  GUI_CTRL.bloom = fR.add(P, 'bloomStrength', 0, 1.5, 0.01).name('Bloom');
-  fR.add(P, 'bloomThreshold', 0.2, 3, 0.01).name('Bloom threshold');
-  GUI_CTRL.ssao = fR.add(P, 'ssao').name('SSAO');
-  GUI_CTRL.god = fR.add(P, 'godRays').name('God rays');
-  fR.add(P, 'grain', 0, 0.08, 0.001).name('Film grain');
-  fR.add(P, 'vignette', 0, 1, 0.01).name('Vignette');
-  fR.add(P, 'sharpen', 0, 1, 0.01).name('Lens sharpening');
-  const fL = gui.addFolder('Lens (depth of field)');
-  fL.add(P, 'dof').name('Depth of field + autofocus');
-  fL.add(P, 'fStop', 1.4, 16, 0.1).name('Aperture (f-stop)');
-  fL.add(P, 'dofStrength', 0, 2, 0.01).name('Max bokeh size');
-  const fC = gui.addFolder('Camera');
-  fC.add(P, 'movie').name('Cinematic = film tour');
-  fC.add(P, 'letterbox').name('Letterbox bars');
-  fC.add(P, 'tourSeasons').name('Change season each loop');
-  GUI_CTRL.cam = fC.add(P, 'cameraMode', ['Cinematic', 'Manual', 'Follow koi', 'Follow turtle']).name('Mode').onChange(onCameraMode);
-  const fV = gui.addFolder('Close-ups');
-  for (const name of ['Turtle', ...Object.keys(VIEWS)]) fV.add({ go: () => goToView(name) }, 'go').name(name);
-  fV.add({ go: () => { P.cameraMode = 'Follow koi'; onCameraMode(); } }, 'go').name('Follow a koi (K)');
-  fC.add(P, 'pathSpeed', 0.2, 3, 0.01).name('Path speed');
-  fC.add(P, 'stayAbove').name('Stay above water');
-  GUI_CTRL.hold = fC.add(P, 'holdCamera').name('Hold shot (P)').onChange((v) => setHold(v));
-  GUI_CTRL.freeze = fC.add(P, 'freezeScene').name('Freeze time (O)').onChange((v) => setFreeze(v));
-  fC.add({ clean: () => setClean(true) }, 'clean').name('Clean view for screenshots (V)');
-  fC.add(P, 'volume', 0, 1, 0.01).name('Volume');
-  GUI_CTRL.audio = fC.add(P, 'audio').name('Sound').onChange((v) => setMuted(!v));
+  const fR = gui.addFolder('Imagen');
+  GUI_CTRL.quality = fR.add(P, 'quality', { 'Baja': 'Low', 'Alta': 'High' }).name('Calidad').onChange(setQuality);
+  fR.add(P, 'autoQuality').name('Bajar calidad si va lento');
+  GUI_CTRL.expo = fR.add(P, 'exposure', 0.3, 2, 0.01).name('Exposición');
+  GUI_CTRL.bloom = fR.add(P, 'bloomStrength', 0, 1.5, 0.01).name('Resplandor');
+  fR.add(P, 'bloomThreshold', 0.2, 3, 0.01).name('Umbral del resplandor');
+  GUI_CTRL.ssao = fR.add(P, 'ssao').name('Oclusión ambiental');
+  GUI_CTRL.god = fR.add(P, 'godRays').name('Rayos de luz');
+  fR.add(P, 'grain', 0, 0.08, 0.001).name('Grano de película');
+  fR.add(P, 'vignette', 0, 1, 0.01).name('Viñeteado');
+  fR.add(P, 'sharpen', 0, 1, 0.01).name('Nitidez');
+  const fL = gui.addFolder('Lente (profundidad de campo)');
+  fL.add(P, 'dof').name('Profundidad de campo + enfoque');
+  fL.add(P, 'fStop', 1.4, 16, 0.1).name('Apertura (f)');
+  fL.add(P, 'dofStrength', 0, 2, 0.01).name('Tamaño máx. del desenfoque');
+  const fC = gui.addFolder('Cámara');
+  fC.add(P, 'movie').name('Cinemática = recorrido de película');
+  fC.add(P, 'letterbox').name('Bandas de cine');
+  fC.add(P, 'tourSeasons').name('Cambiar de estación en cada vuelta');
+  GUI_CTRL.cam = fC.add(P, 'cameraMode', { 'Cinemática': 'Cinematic', 'Manual': 'Manual', 'Seguir una carpa': 'Follow koi', 'Seguir la tortuga': 'Follow turtle' }).name('Modo').onChange(onCameraMode);
+  const fV = gui.addFolder('Primeros planos');
+  for (const name of ['Turtle', ...Object.keys(VIEWS)]) fV.add({ go: () => goToView(name) }, 'go').name(TXT.view[name] || name);
+  fV.add({ go: () => { P.cameraMode = 'Follow koi'; onCameraMode(); } }, 'go').name('Seguir una carpa (K)');
+  fC.add(P, 'pathSpeed', 0.2, 3, 0.01).name('Velocidad del recorrido');
+  fC.add(P, 'stayAbove').name('Mantenerse sobre el agua');
+  GUI_CTRL.hold = fC.add(P, 'holdCamera').name('Fijar plano (P)').onChange((v) => setHold(v));
+  GUI_CTRL.freeze = fC.add(P, 'freezeScene').name('Congelar tiempo (O)').onChange((v) => setFreeze(v));
+  fC.add({ clean: () => setClean(true) }, 'clean').name('Vista limpia para capturas (V)');
+  fC.add(P, 'volume', 0, 1, 0.01).name('Volumen');
+  GUI_CTRL.audio = fC.add(P, 'audio').name('Sonido').onChange((v) => setMuted(!v));
   fC.open();
   gui.close();                                        // keep the frame clean; 'Open Controls' (or H) brings it back
   GUI_CTRL.gui = gui;
@@ -8144,7 +8321,7 @@ function updatePerf(rawDt) {
     if (perf.slow > 1.5) {
       perf.slow = 0;
       if (RES.scale > 0.62) { RES.scale = Math.max(0.6, RES.scale - 0.1); setQuality(P.quality, true); }
-      else if (P.quality === 'High') { setQuality('Low'); toast('Frame time stayed over 22 ms — switched to Low quality'); }
+      else if (P.quality === 'High') { setQuality('Low'); toast('El fotograma tardó más de 22 ms: se ha pasado a calidad Baja'); }
     } else if (perf.fast > 4 && RES.scale < 1) { perf.fast = 0; RES.scale = Math.min(1, RES.scale + 0.1); setQuality(P.quality, true); }
   }
 }
@@ -8152,7 +8329,7 @@ const STATE = { under: false, wasUnder: false, exitT: 99, depth: 0 };
 let hudTimer = 0;
 function updateHUD(dt) {
   hudTimer -= dt; if (hudTimer > 0) return; hudTimer = 0.25;
-  $('hud').textContent = `${perf.fps.toFixed(0).padStart(3)} fps  ${perf.ms.toFixed(1).padStart(5)} ms\n${P.quality} · ${STATE.under ? 'underwater ' + STATE.depth.toFixed(2) + ' m' : 'above water'} · ${P.cameraMode}`;
+  $('hud').textContent = `${perf.fps.toFixed(0).padStart(3)} fps  ${perf.ms.toFixed(1).padStart(5)} ms\n${TXT.q[P.quality]} · ${STATE.under ? 'bajo el agua ' + STATE.depth.toFixed(2) + ' m' : 'sobre el agua'} · ${TXT.cam[P.cameraMode]}`;
 }
 function updateWind(t) {
   SH.uGust.value = clamp(0.5 + 0.9 * fbm3(t * 0.12, 3.3, 1.1, 3, 77), 0, 1);
@@ -8189,6 +8366,7 @@ function frame() {
   const t = (SH.uTime.value += dt);
   updatePerf(rawDt);
   updateWind(t);
+  padFrame(cdt);
   updateCamera(cdt, t);
   camera.updateMatrixWorld();
   updateWaterState(t, dt);
@@ -8240,26 +8418,26 @@ addEventListener('resize', () => {
 
 async function init() {
   try {
-    await progress(0.02, 'Tracing the pond outline');
+    await progress(0.02, 'Trazando el contorno del estanque');
     buildSDF();
     setupWaterfallSite();
     await buildTextures();
     buildPlantTextures();
     SH.tCaustics.value = TEX.caustics;
     SH.uCausticNorm.value = 1 / (TEX.causticMean * TEX.causticMean);
-    await progress(0.6, 'Shaping terrain and basin');
+    await progress(0.6, 'Modelando el terreno y el estanque');
     buildTerrain();
-    await progress(0.66, 'Setting stones');
+    await progress(0.66, 'Colocando las piedras');
     buildStones();
     woodMaterials();
-    await progress(0.72, 'Building the bridge and pavilion');
+    await progress(0.72, 'Construyendo el puente y el pabellón');
     buildBridge();
     buildPavilion();
-    await progress(0.8, 'Planting the garden');
+    await progress(0.8, 'Plantando el jardín');
     buildVegetation();
     buildTurtle();
     buildUnderwaterLife();
-    await progress(0.86, 'Filling the pond');
+    await progress(0.86, 'Llenando el estanque');
     buildWater();
     buildWaterfall();
     buildLanterns();
@@ -8278,6 +8456,7 @@ async function init() {
     buildDivePost();
     buildGUI();
     setupControls();
+    setupTouchPad();
   $('feedbtn').addEventListener('click', () => { startAudio(); startFeeding(); });
   $('tb-cam').addEventListener('click', () => { startAudio(); toggleCameraMode(); });
   $('tb-hold').addEventListener('click', () => setHold(!P.holdCamera));
@@ -8290,21 +8469,21 @@ async function init() {
   $('strokebtn').addEventListener('click', () => { startAudio(); startStroke(); });
   $('tb-freeze').addEventListener('click', () => setFreeze(!P.freezeScene));
   $('tb-clean').addEventListener('click', () => setClean(true));
-    await progress(0.93, 'Compiling shaders');
+    await progress(0.93, 'Preparando los gráficos');
     updateEnv();
     const all = camera.clone(); all.layers.enableAll();
     renderer.compile(scene, all);
-    await progress(1, 'Ready');
+    await progress(1, 'Listo');
     clock.getDelta();
     frame();
     setTimeout(() => { $('loader').style.opacity = 0; setTimeout(() => $('loader').remove(), 900); }, 150);
   } catch (err) {
     console.error(err);
-    $('loadmsg').textContent = 'Failed to start: ' + err.message;
+    $('loadmsg').textContent = 'No se pudo iniciar: ' + err.message;
   }
 }
 init();
 </script>
 
 
-<div class="dg ac"><div class="dg main a" style="user-select: none; width: 290px;"><div style="width: 6px; margin-left: -3px; height: 0px; cursor: ew-resize; position: absolute;"></div><ul style="height: auto;" class="closed"><li class="folder"><div class="dg"><ul><li class="title">Environment</li><li class="cr string"><div><span class="property-name">Weather / season</span><div class="c"><select><option value="Sunny" selected="selected">Sunny</option><option value="Rain">Rain</option><option value="Autumn">Autumn</option><option value="Winter">Winter</option></select></div></div></li><li class="cr number has-slider"><div><span class="property-name">Time of day</span><div class="c"><div><input type="text" value="10.5"></div><div class="slider"><div class="slider-fg" style="width: 34.6154%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Sun azimuth</span><div class="c"><div><input type="text" value="55"></div><div class="slider"><div class="slider-fg" style="width: 65.2778%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Wind</span><div class="c"><div><input type="text" value="0.35"></div><div class="slider"><div class="slider-fg" style="width: 35%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Wind direction</span><div class="c"><div><input type="text" value="35"></div><div class="slider"><div class="slider-fg" style="width: 9.72222%;"></div></div></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul><li class="title">Water</li><li class="cr number has-slider"><div><span class="property-name">Clarity</span><div class="c"><div><input type="text" value="1.6"></div><div class="slider"><div class="slider-fg" style="width: 76.4706%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Wave height</span><div class="c"><div><input type="text" value="1"></div><div class="slider"><div class="slider-fg" style="width: 40%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Caustics</span><div class="c"><div><input type="text" value="1"></div><div class="slider"><div class="slider-fg" style="width: 50%;"></div></div></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul><li class="title">Koi</li><li class="cr number has-slider"><div><span class="property-name">Fish count</span><div class="c"><div><input type="text" value="20"></div><div class="slider"><div class="slider-fg" style="width: 100%;"></div></div></div></div></li><li class="cr function"><div><span class="property-name">Feed the koi (E)</span><div class="c"><div class="button"></div></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul class="closed"><li class="title">Rendering</li><li class="cr string"><div><span class="property-name">Quality</span><div class="c"><select><option value="Low">Low</option><option value="High" selected="selected">High</option></select></div></div></li><li class="cr boolean"><div><span class="property-name">Auto-drop to Low</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr number has-slider"><div><span class="property-name">Exposure</span><div class="c"><div><input type="text" value="0.9"></div><div class="slider"><div class="slider-fg" style="width: 35.2941%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Bloom</span><div class="c"><div><input type="text" value="0.3"></div><div class="slider"><div class="slider-fg" style="width: 20%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Bloom threshold</span><div class="c"><div><input type="text" value="0.9"></div><div class="slider"><div class="slider-fg" style="width: 25%;"></div></div></div></div></li><li class="cr boolean"><div><span class="property-name">SSAO</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr boolean"><div><span class="property-name">God rays</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr number has-slider"><div><span class="property-name">Film grain</span><div class="c"><div><input type="text" value="0.01"></div><div class="slider"><div class="slider-fg" style="width: 12.5%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Vignette</span><div class="c"><div><input type="text" value="0.32"></div><div class="slider"><div class="slider-fg" style="width: 32%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Lens sharpening</span><div class="c"><div><input type="text" value="0.35"></div><div class="slider"><div class="slider-fg" style="width: 35%;"></div></div></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul class="closed"><li class="title">Lens (depth of field)</li><li class="cr boolean"><div><span class="property-name">Depth of field + autofocus</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr number has-slider"><div><span class="property-name">Aperture (f-stop)</span><div class="c"><div><input type="text" value="8"></div><div class="slider"><div class="slider-fg" style="width: 45.2055%;"></div></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Max bokeh size</span><div class="c"><div><input type="text" value="1"></div><div class="slider"><div class="slider-fg" style="width: 50%;"></div></div></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul><li class="title">Camera</li><li class="cr boolean"><div><span class="property-name">Cinematic = film tour</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr boolean"><div><span class="property-name">Letterbox bars</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr boolean"><div><span class="property-name">Change season each loop</span><div class="c"><input type="checkbox"></div></div></li><li class="cr string"><div><span class="property-name">Mode</span><div class="c"><select><option value="Cinematic" selected="selected">Cinematic</option><option value="Manual">Manual</option><option value="Follow koi">Follow koi</option><option value="Follow turtle">Follow turtle</option></select></div></div></li><li class="cr number has-slider"><div><span class="property-name">Path speed</span><div class="c"><div><input type="text" value="1"></div><div class="slider"><div class="slider-fg" style="width: 28.5714%;"></div></div></div></div></li><li class="cr boolean"><div><span class="property-name">Stay above water</span><div class="c"><input type="checkbox" checked="checked"></div></div></li><li class="cr boolean"><div><span class="property-name">Hold shot (P)</span><div class="c"><input type="checkbox"></div></div></li><li class="cr boolean"><div><span class="property-name">Freeze time (O)</span><div class="c"><input type="checkbox"></div></div></li><li class="cr function"><div><span class="property-name">Clean view for screenshots (V)</span><div class="c"><div class="button"></div></div></div></li><li class="cr number has-slider"><div><span class="property-name">Volume</span><div class="c"><div><input type="text" value="0.7"></div><div class="slider"><div class="slider-fg" style="width: 70%;"></div></div></div></div></li><li class="cr boolean"><div><span class="property-name">Sound</span><div class="c"><input type="checkbox" checked="checked"></div></div></li></ul></div></li><li class="folder"><div class="dg"><ul class="closed"><li class="title">Close-ups</li><li class="cr function"><div><span class="property-name">Turtle</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Frog</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Dragonfly</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Bamboo grove</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Wisteria arbor</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Hydrangeas</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Spider lilies</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Peonies</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Camellia</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Water lilies</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Bridge timber</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Stone &amp; moss</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Lotus</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Underwater</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Lily roots (underwater)</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Waterfall</span><div class="c"><div class="button"></div></div></div></li><li class="cr function"><div><span class="property-name">Follow a koi (K)</span><div class="c"><div class="button"></div></div></div></li></ul></div></li></ul><div class="close-button close-bottom" style="width: 290px;">Open Controls</div></div></div></body></html>
+</body></html>
